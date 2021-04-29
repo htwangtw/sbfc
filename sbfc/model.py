@@ -1,13 +1,10 @@
+import nibabel as nb
 import numpy as np
 import pandas as pd
-import nibabel as nb
-
-from nilearn.input_data import NiftiSpheresMasker, NiftiMasker
-from nilearn.glm.first_level import (
-    make_first_level_design_matrix,
-    FirstLevelModel,
-)
+from nilearn.glm.first_level import (FirstLevelModel,
+                                     make_first_level_design_matrix)
 from nilearn.glm.second_level import SecondLevelModel
+from nilearn.input_data import NiftiMasker, NiftiSpheresMasker
 
 
 def _seed_ts(seed, radius=10, **args):

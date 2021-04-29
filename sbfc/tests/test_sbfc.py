@@ -1,9 +1,10 @@
 import os
-from nilearn import datasets
-import pandas as pd
-import numpy as np
-from ..parser import seed_base_connectivity
 
+import numpy as np
+import pandas as pd
+from nilearn import datasets
+
+from ..parser import seed_base_connectivity
 
 mask = os.path.dirname(__file__) + "/data/difumo64_pcc.nii.gz"
 
