@@ -1,8 +1,7 @@
 import nibabel as nb
 import numpy as np
 import pandas as pd
-from nilearn.glm.first_level import (FirstLevelModel,
-                                     make_first_level_design_matrix)
+from nilearn.glm.first_level import FirstLevelModel, make_first_level_design_matrix
 from nilearn.glm.second_level import SecondLevelModel
 from nilearn.input_data import NiftiMasker, NiftiSpheresMasker
 
@@ -136,9 +135,7 @@ def _group_level(
     if isinstance(group_contrast, str):
         group_contrast = pd.read_csv(group_contrast)
 
-    _check_group_level(
-        group_confounds, group_design_matrix, first_level_models
-    )
+    _check_group_level(group_confounds, group_design_matrix, first_level_models)
     _check_group_design(group_design_matrix, group_contrast)
 
     second_level_model = SecondLevelModel()

@@ -14,9 +14,7 @@ def _make_data():
     group_confounds = pd.DataFrame(adhd_dataset.phenotypic)[
         ["Subject", "MeanFD", "age", "sex"]
     ]
-    group_confounds = group_confounds.rename(
-        columns={"Subject": "subject_label"}
-    )
+    group_confounds = group_confounds.rename(columns={"Subject": "subject_label"})
     group_design_matrix = pd.DataFrame(adhd_dataset.phenotypic)[["Subject"]]
     group_design_matrix = group_design_matrix.rename(
         columns={"Subject": "subject_label"}
