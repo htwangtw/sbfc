@@ -43,7 +43,8 @@ def _scan_consistent(funcs):
         return t_r[0]
     else:
         raise ValueError(
-            "Input functional images has different TRs and different length of scan."
+            "Input functional images has different TRs "
+            + "and different length of scan."
         )
 
 
@@ -85,7 +86,8 @@ def _first_level(funcs, seed):
     Parameters
     ----------
     funcs: dict; str -> str or nifti image
-        A dictionary containing subject ID as key and point to the path to functional data.
+        A dictionary containing subject ID as key and point to the
+        path to functional data.
 
     """
     t_r = _scan_consistent(funcs)
@@ -117,7 +119,8 @@ def _check_group_design(design_matrix, contrast):
     col_ct = contrast.columns.tolist()
     if col_dm != col_ct:
         raise KeyError(
-            "The header of group level design and contrast files should be identical."
+            "The header of group level design and contrast files"
+            + " should be identical."
         )
 
 
@@ -147,11 +150,13 @@ def _group_level(
 
 # def report(first_level_models, second_level_model, contrast, output):
 #     for model in first_level_models:
-#         zmap = model.compute_contrast(contrast['seed_based_glm'], output_type='z_score')
+#         zmap = model.compute_contrast(contrast['seed_based_glm'],
+#                                       output_type='z_score')
 #         report = make_glm_report(model,
 #                                 contrasts=contrast,
 #                                 plot_type='glass',
 #                                 )
 #         report.save_as_html(output + 'first_level_report.html')
 
-#     group_zmap = second_level_model.compute_contrast(first_level_contrast=contrast['seed_based_glm'])
+#     group_zmap = second_level_model.compute_contrast(
+#                   first_level_contrast=contrast['seed_based_glm'])
