@@ -3,6 +3,23 @@ name = "sbfc"
 version = "0.1.0"
 description = "Seed-based functional connectivity with Nilearn"
 authors = ["Hao-Ting Wang <htwangtw@gmail.com>"]
+license = BSD-3-Clause"
+readme = "README.md"
+homepage = "https://github.com/htwangtw/sbfc"
+repository = "https://github.com/htwangtw/sbfc"
+keywords = ["fmri", "data-analysis"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "License :: OSI Approved :: BSD 3 Clause",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+include = [
+    "LICENSE",
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.7"
