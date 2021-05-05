@@ -7,16 +7,7 @@ from nilearn.input_data import NiftiMasker, NiftiSpheresMasker
 
 
 def _seed_ts(seed, radius=10, **args):
-    """Get seed time seriese.
-
-    Parameters
-    ----------
-    seed: str or nifti image or tuple
-        A 3D roi mask or oordinate of the seed coordinate.
-
-    radius: int
-        Radius of the seed cordinate.
-    """
+    """Get seed time seriese."""
     if isinstance(seed, tuple):
         assert len(seed) == 3, "Coordinate must be in a 3D space"
         return NiftiSpheresMasker(seeds=[seed], radius=radius, **args)
@@ -34,7 +25,8 @@ def _scan_consistent(funcs):
     """Check all files has the same length and TR"""
     t_r = []
     n_scans = []
-    for func, _ in funcs.values():
+    for _, item in funcs.items():
+        func = item["func"]
         example_func = nb.load(func)
         t_r.append(example_func.header.get_zooms()[-1])
         n_scans.append(example_func.shape[-1])
@@ -80,20 +72,14 @@ def _first_level_seed_contrast(design_mat_col):
 
 
 def _first_level(funcs, seed):
-    """Run a first level seed base functional connectivity analysis.
-
-    Parameters
-    ----------
-    funcs: dict; str -> str or nifti image
-        A dictionary containing subject ID as key and point to the
-        path to functional data.
-
-    """
+    """Run a first level seed base functional connectivity analysis."""
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     first_level_models = []
     first_level_contrasts = []
-    for sub_id, (func, confounds) in funcs.items():
+    for sub_id, item in funcs.items():
+        func = item["func"]
+        confounds = item["confounds"]
         d = _seed_mat(seed_masker, func, confounds)
         design_matrix, contrast = _bulid_design(d, t_r)
         model = FirstLevelModel(t_r=t_r, subject_label=sub_id)

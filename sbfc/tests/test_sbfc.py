@@ -25,12 +25,12 @@ def _make_data():
     # Prepare timing
     # t_r = 2.0
     # n_scans = 176
-    func_img = {
-        f"{sub_id}": (func, confound)
-        for func, confound, sub_id in zip(
-            adhd_dataset.func, adhd_dataset.confounds, group_confounds.index
-        )
-    }
+    func_img = {}
+    for func, confound, sub_id in zip(
+        adhd_dataset.func, adhd_dataset.confounds, group_confounds.index
+    ):
+        func_img[f"{sub_id}"] = {"func": func, "confounds": confound}
+
     return func_img, group_design_matrix, group_confounds, group_contrast
 
 
