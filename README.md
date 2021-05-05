@@ -22,7 +22,7 @@ Then you can install by running the following command in
 a command prompt:
 
 ```bash
-pip install git+https://github.com/htwangtw/sbfc.git
+pip install sbfc
 ```
 
 ## Prepare your data
@@ -30,4 +30,4 @@ pip install git+https://github.com/htwangtw/sbfc.git
 This library work on minimally processed data only.
 If you need to preprocess your imaging data, please consider `fMRIprep`.
 
-You can find an example in `example` and files that you should prepare to run the pipeline.
+You can find an example in [`example`](https://github.com/htwangtw/sbfc/tree/main/example) and files that you should prepare to run the pipeline.
