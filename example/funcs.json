@@ -1,0 +1,6 @@
+{
+    "test":{
+        "func": "path/test.nii.gz",
+        "confounds": "path/test.tsv"
+    }
+}

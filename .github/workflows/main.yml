@@ -34,7 +34,7 @@ jobs:
         run: poetry install
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Test and return coverage report
-        run: poetry run pytest ./sbfc --cov ./sbfc --cov-report xml
+        run: poetry run pytest ./tests --cov ./sbfc --cov-report xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1
         with:
