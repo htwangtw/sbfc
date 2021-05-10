@@ -43,15 +43,19 @@ def _get_frametime(t_r, n_scans):
     return np.linspace(0, (n_scans - 1) * t_r, n_scans)
 
 
-def _seed_mat(seed_masker, func, confounds):
-    ts = seed_masker.fit_transform(func)
-    if ts.ndim == 2:
+def _seed_mat(seed_masker, func, confounds=None):
+    if confounds:
+        confounds = pd.read_csv(confounds, sep="\t")
+        confounds = confounds.drop(columns=["constant"])
+        ts = seed_masker.fit_transform(func, confounds=confounds)
         ts = ts.mean(axis=1)
-    ts = pd.DataFrame(ts, columns=["seed"])
-    confounds = pd.read_csv(confounds, sep="\t")
-    confounds = confounds.drop(columns=["constant"])
-    dm = pd.concat([ts, confounds], axis=1)
-    return dm
+        ts = pd.DataFrame(ts, columns=["seed"])
+        return pd.concat([ts, confounds], axis=1)
+    else:
+        ts = seed_masker.fit_transform(func)
+        ts = ts.mean(axis=1)
+        ts = pd.DataFrame(ts, columns=["seed"])
+        return ts
 
 
 def _bulid_design(d, t_r):
@@ -79,8 +83,11 @@ def _first_level(funcs, seed):
     first_level_contrasts = []
     for sub_id, item in funcs.items():
         func = item["func"]
-        confounds = item["confounds"]
-        d = _seed_mat(seed_masker, func, confounds)
+        if "confounds" in item:
+            confounds = item["confounds"]
+            d = _seed_mat(seed_masker, func, confounds)
+        else:
+            d = _seed_mat(seed_masker, func)
         design_matrix, contrast = _bulid_design(d, t_r)
         model = FirstLevelModel(t_r=t_r, subject_label=sub_id)
         model = model.fit(run_imgs=func, design_matrices=design_matrix)
