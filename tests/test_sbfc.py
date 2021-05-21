@@ -53,7 +53,7 @@ def _make_data_multi_run():
     return func_img, group_design_matrix, group_confounds, group_contrast
 
 
-def test_sbfc_single_run():
+def test_sbfc_single_run(tmpdir):
     (
         func_img,
         group_design_matrix,
@@ -78,7 +78,7 @@ def test_sbfc_single_run():
     assert len(first_m) == 2
 
 
-def test_sbfc_mutli_run():
+def test_sbfc_mutli_run(tmpdir):
     (
         func_img,
         group_design_matrix,
