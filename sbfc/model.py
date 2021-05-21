@@ -82,8 +82,7 @@ def _subject_level(
     funcs,
     write_dir=None,
     confounds=None,
-    subject_label=None,
-    drift_model="cosine",
+    **args
 ):
     """Run a subject level seed base functional connectivity analysis.
     One run - normal first level
@@ -111,7 +110,7 @@ def _subject_level(
     contrast_id = "seed_based_glm"
     print("Fit model")
     model = FirstLevelModel(
-        t_r=t_r, subject_label=subject_label, drift_model=drift_model
+        t_r=t_r, **args
     )
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
