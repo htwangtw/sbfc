@@ -9,7 +9,36 @@ from sbfc.parser import seed_base_connectivity
 mask = os.path.dirname(__file__) + "/data/difumo64_pcc.nii.gz"
 
 
-def _make_data():
+def _make_data_single_run(confound=True):
+    adhd_dataset = datasets.fetch_adhd(n_subjects=2)
+    group_confounds = pd.DataFrame(adhd_dataset.phenotypic)[
+        ["Subject", "MeanFD", "age", "sex"]
+    ]
+    group_confounds = group_confounds.rename(columns={"Subject": "subject_label"})
+    group_design_matrix = pd.DataFrame(adhd_dataset.phenotypic)[["Subject"]]
+    group_design_matrix = group_design_matrix.rename(
+        columns={"Subject": "subject_label"}
+    )
+    group_design_matrix["pheno"] = np.random.rand(2)
+    group_contrast = pd.DataFrame([1], columns=["pheno"])
+    if confound:
+        func_img = {
+            f"{sub_id}": {"func": [func], "confound": [confound]}
+            for func, confound, sub_id in zip(
+                adhd_dataset.func, adhd_dataset.confounds, group_confounds.index
+            )
+        }
+    else:
+        func_img = {
+            f"{sub_id}": {"func": [func], "confound": [None]}
+            for func, confound, sub_id in zip(
+                adhd_dataset.func, adhd_dataset.confounds, group_confounds.index
+            )
+        }
+    return func_img, group_design_matrix, group_confounds, group_contrast
+
+
+def _make_data_multi_run():
     adhd_dataset = datasets.fetch_adhd(n_subjects=2)
     group_confounds = pd.DataFrame(adhd_dataset.phenotypic)[
         ["Subject", "MeanFD", "age", "sex"]
@@ -22,25 +51,22 @@ def _make_data():
     group_design_matrix["pheno"] = np.random.rand(2)
     group_contrast = pd.DataFrame([1], columns=["pheno"])
 
-    # Prepare timing
-    # t_r = 2.0
-    # n_scans = 176
-    func_img = {}
-    for func, confound, sub_id in zip(
-        adhd_dataset.func, adhd_dataset.confounds, group_confounds.index
-    ):
-        func_img[f"{sub_id}"] = {"func": func, "confounds": confound}
-
+    func_img = {
+        f"{sub_id}": {"func": [func, func], "confound": [confound, confound]}
+        for func, confound, sub_id in zip(
+            adhd_dataset.func, adhd_dataset.confounds, group_confounds.index
+        )
+    }
     return func_img, group_design_matrix, group_confounds, group_contrast
 
 
-def test_sbfc():
+def test_sbfc_single_run(tmpdir):
     (
         func_img,
         group_design_matrix,
         group_confounds,
         group_contrast,
-    ) = _make_data()
+    ) = _make_data_single_run()
     # Prepare seed
     pcc_coords = (0, -53, 26)
     first_m, first_con, s_m = seed_base_connectivity(
@@ -49,11 +75,42 @@ def test_sbfc():
         group_confounds,
         group_design_matrix,
         group_contrast,
+        write_dir=tmpdir,
     )
     assert len(first_m) == 2
 
+    (
+        func_img,
+        group_design_matrix,
+        group_confounds,
+        group_contrast,
+    ) = _make_data_single_run(confound=False)
     # mask seed
     first_m, first_con, s_m = seed_base_connectivity(
-        func_img, mask, group_confounds, group_design_matrix, group_contrast
+        func_img,
+        mask,
+        group_confounds,
+        group_design_matrix,
+        group_contrast,
+        write_dir=tmpdir,
+    )
+    assert len(first_m) == 2
+
+
+def test_sbfc_mutli_run(tmpdir):
+    (
+        func_img,
+        group_design_matrix,
+        group_confounds,
+        group_contrast,
+    ) = _make_data_multi_run()
+    # mask seed
+    first_m, first_con, s_m = seed_base_connectivity(
+        func_img,
+        mask,
+        group_confounds,
+        group_design_matrix,
+        group_contrast,
+        write_dir=tmpdir,
     )
     assert len(first_m) == 2

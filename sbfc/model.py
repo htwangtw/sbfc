@@ -1,9 +1,12 @@
+from os import getcwd, mkdir, path
+
 import nibabel as nb
 import numpy as np
 import pandas as pd
 from nilearn.glm.first_level import FirstLevelModel, make_first_level_design_matrix
 from nilearn.glm.second_level import SecondLevelModel
 from nilearn.input_data import NiftiMasker, NiftiSpheresMasker
+from nilearn.reporting import make_glm_report
 
 
 def _seed_ts(seed, radius=10, **args):
@@ -22,11 +25,10 @@ def _all_same(items):
 
 
 def _scan_consistent(funcs):
-    """Check all files has the same length and TR"""
+    """Check a list of functional files files has the same length and TR"""
     t_r = []
     n_scans = []
-    for _, item in funcs.items():
-        func = item["func"]
+    for func in funcs:
         example_func = nb.load(func)
         t_r.append(example_func.header.get_zooms()[-1])
         n_scans.append(example_func.shape[-1])
@@ -75,25 +77,55 @@ def _first_level_seed_contrast(design_mat_col):
     return {"seed_based_glm": seed_contrast}
 
 
-def _first_level(funcs, seed):
-    """Run a first level seed base functional connectivity analysis."""
+def _subject_level(
+    seed,
+    funcs,
+    write_dir=None,
+    confounds=None,
+    subject_label=None,
+    drift_model="cosine",
+):
+    """Run a subject level seed base functional connectivity analysis.
+    One run - normal first level
+    More than one run - retrun fixed effect of the seed.
+    """
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
-    first_level_models = []
-    first_level_contrasts = []
-    for sub_id, item in funcs.items():
-        func = item["func"]
-        if "confounds" in item:
-            confounds = item["confounds"]
-            d = _seed_mat(seed_masker, func, confounds)
-        else:
-            d = _seed_mat(seed_masker, func)
-        design_matrix, contrast = _bulid_design(d, t_r)
-        model = FirstLevelModel(t_r=t_r, subject_label=sub_id)
-        model = model.fit(run_imgs=func, design_matrices=design_matrix)
-        first_level_models.append(model)
-        first_level_contrasts.append(contrast)
-    return first_level_models, first_level_contrasts
+    if confounds is None:
+        confounds = [None] * len(funcs)
+
+    # make output dir
+    if write_dir is None:
+        write_dir = path.join(getcwd(), f"results/{subject_label}/")
+    if not path.exists(write_dir):
+        mkdir(write_dir)
+
+    design = []
+    print("Generate design")
+    for func, conf in zip(funcs, confounds):
+        sm = _seed_mat(seed_masker, func, conf)
+        # all contrast should be the same
+        design_matrix, contrast = _bulid_design(sm, t_r)
+        design.append(design_matrix)
+
+    contrast_id = "seed_based_glm"
+    print("Fit model")
+    model = FirstLevelModel(
+        t_r=t_r, subject_label=subject_label, drift_model=drift_model
+    )
+    model = model.fit(run_imgs=funcs, design_matrices=design)
+
+    print("Computing contrasts and save to disc...")
+    z_map = model.compute_contrast(contrast[contrast_id], output_type="z_score")
+    z_image_path = path.join(write_dir, "%s_z_map.nii.gz" % contrast_id)
+    z_map.to_filename(z_image_path)
+    report = make_glm_report(
+        model,
+        contrasts=contrast,
+        plot_type="glass",
+    )
+    report.save_as_html(write_dir + "first_level_report.html")
+    return model, contrast
 
 
 def _check_group_level(confounds, design_matrix, first_level_models):
@@ -116,7 +148,7 @@ def _check_group_design(design_matrix, contrast):
         )
 
 
-def _group_level(
+def group_level(
     first_level_models, group_confounds, group_design_matrix, group_contrast
 ):
     if isinstance(group_confounds, str):
@@ -136,17 +168,3 @@ def _group_level(
         first_level_models, group_confounds, group_design_matrix
     )
     return second_level_model
-
-
-# def report(first_level_models, second_level_model, contrast, output):
-#     for model in first_level_models:
-#         zmap = model.compute_contrast(contrast['seed_based_glm'],
-#                                       output_type='z_score')
-#         report = make_glm_report(model,
-#                                 contrasts=contrast,
-#                                 plot_type='glass',
-#                                 )
-#         report.save_as_html(output + 'first_level_report.html')
-
-#     group_zmap = second_level_model.compute_contrast(
-#                   first_level_contrast=contrast['seed_based_glm'])
