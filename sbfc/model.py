@@ -105,7 +105,9 @@ def _subject_level(
 
     contrast_id = "seed_based_glm"
     print("Fit model")
-    model = FirstLevelModel(t_r=t_r, **args)
+    model = FirstLevelModel(
+        t_r=t_r, confounds=confounds, subject_label=subject_label, **args
+    )
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
     print("Computing contrasts and save to disc...")
