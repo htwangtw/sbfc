@@ -116,9 +116,10 @@ def _subject_level(
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
     print("Computing contrasts and save to disc...")
-    z_map = model.compute_contrast(contrast[contrast_id], output_type="z_score")
-    z_image_path = path.join(write_dir, "%s_z_map.nii.gz" % contrast_id)
-    z_map.to_filename(z_image_path)
+    statsmaps = model.compute_contrast(contrast[contrast_id], output_type="all")
+    for map in statsmaps:
+        image_path = path.join(write_dir, f"{contrast_id}_{map}.nii.gz")
+        statsmaps[map].to_filename(image_path)
     report = make_glm_report(
         model,
         contrasts=contrast,
