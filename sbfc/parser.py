@@ -2,20 +2,26 @@ from . import model as sm
 
 
 def seed_base_connectivity(
-    funcs, seed, group_confounds, group_design_matrix, group_contrast
+    data,
+    seed,
+    group_confounds,
+    group_design_matrix,
+    group_contrast,
+    drift_model="cosine",
+    write_dir=None,
 ):
     """Perform seed-based functional connectivity analysis on resting state data.
 
     Parameters
     ----------
 
-    funcs: dict
+    data: dict
         A dictionary containing subject ID as key and point to the
         path to functional data and confound regressors.
         Structure should be like:
         data = {"subject_id": {
-                    "func": "path/to/func.nii.gz",
-                    "confounds": "path/to/confounds.tsv"
+                    "func": ["path/to/func1.nii.gz", "path/to/func2.nii.gz"],
+                    "confound": ["path/to/conf1.nii.gz", "path/to/conf2.nii.gz"]
                     }
                 }
 
@@ -41,11 +47,22 @@ def seed_base_connectivity(
         Each following roll is a contrast specification
 
     """
-    first_level_models, first_level_contrasts = sm._first_level(funcs, seed)
-    second_level_model = sm._group_level(
-        first_level_models,
+    subject_level_models = []
+    for sub_id, items in data.items():
+        subject_lvl, subject_lvl_contrast = sm._subject_level(
+            seed,
+            items["func"],
+            confounds=items["confound"],
+            subject_label=sub_id,
+            write_dir=write_dir,
+            drift_model=drift_model,
+        )
+        subject_level_models.append(subject_lvl)
+
+    second_level_model = sm.group_level(
+        subject_level_models,
         group_confounds,
         group_design_matrix,
         group_contrast,
     )
-    return first_level_models, first_level_contrasts, second_level_model
+    return subject_level_models, subject_lvl_contrast, second_level_model
