@@ -68,6 +68,7 @@ def test_sbfc_single_run(tmpdir):
         group_confounds,
         group_design_matrix,
         group_contrast,
+        write_dir=tmpdir,
     )
     assert len(first_m) == 2
 
