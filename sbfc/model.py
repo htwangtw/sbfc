@@ -60,13 +60,13 @@ def _seed_mat(seed_masker, func, confounds=None):
         return ts
 
 
-def _bulid_design(d, t_r):
+def _bulid_design(d, t_r, **args):
     frametimes = _get_frametime(t_r, d.shape[0])
     design_matrix = make_first_level_design_matrix(
         frametimes,
-        hrf_model="spm",
         add_regs=d.values,
         add_reg_names=d.columns.tolist(),
+        **args
     )
     contrast = _first_level_seed_contrast(design_matrix.shape[1])
     return design_matrix, contrast
@@ -100,12 +100,12 @@ def _subject_level(
     for func, conf in zip(funcs, confounds):
         sm = _seed_mat(seed_masker, func, conf)
         # all contrast should be the same
-        design_matrix, contrast = _bulid_design(sm, t_r)
+        design_matrix, contrast = _bulid_design(sm, t_r, **args)
         design.append(design_matrix)
 
     contrast_id = "seed_based_glm"
     print("Fit model")
-    model = FirstLevelModel(t_r=t_r, subject_label=subject_label, **args)
+    model = FirstLevelModel(t_r=t_r, subject_label=subject_label)
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
     print("Computing contrasts and save to disc...")
