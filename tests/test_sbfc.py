@@ -73,7 +73,12 @@ def test_sbfc_single_run(tmpdir):
 
     # mask seed
     first_m, first_con, s_m = seed_base_connectivity(
-        func_img, mask, group_confounds, group_design_matrix, group_contrast
+        func_img,
+        mask,
+        group_confounds,
+        group_design_matrix,
+        group_contrast,
+        write_dir=tmpdir,
     )
     assert len(first_m) == 2
 
@@ -87,6 +92,11 @@ def test_sbfc_mutli_run(tmpdir):
     ) = _make_data_multi_run()
     # mask seed
     first_m, first_con, s_m = seed_base_connectivity(
-        func_img, mask, group_confounds, group_design_matrix, group_contrast
+        func_img,
+        mask,
+        group_confounds,
+        group_design_matrix,
+        group_contrast,
+        write_dir=tmpdir,
     )
     assert len(first_m) == 2
