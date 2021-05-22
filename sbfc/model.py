@@ -88,6 +88,8 @@ def subject_level(
     """
     hrf_model = args.get("hrf_model", None)
     args.pop("hrf_model")
+    mask_img = args.get("mask_img", None)
+    args.pop("mask_img")
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
@@ -113,6 +115,7 @@ def subject_level(
         t_r=t_r,
         hrf_model=hrf_model,
         subject_label=subject_label,
+        mask_img=mask_img,
         verbose=verbose,
     )
     model = model.fit(run_imgs=funcs, design_matrices=design)
