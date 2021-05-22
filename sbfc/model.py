@@ -104,7 +104,12 @@ def subject_level(
 
     contrast_id = "seed"
     print("Fit model")
-    model = FirstLevelModel(t_r=t_r, subject_label=subject_label, verbose=verbose)
+    model = FirstLevelModel(
+        t_r=t_r,
+        hrf_model=args["hrf_model"],
+        subject_label=subject_label,
+        verbose=verbose,
+    )
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
     print("Computing contrasts and save to disc...")
@@ -119,7 +124,8 @@ def subject_level(
         contrasts=contrast,
         plot_type="glass",
     )
-    report.save_as_html(write_dir + "first_level_report.html")
+    report_path = path.join(write_dir, "first_level_report.html")
+    report.save_as_html(report_path)
     return model, contrast
 
 
