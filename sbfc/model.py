@@ -3,7 +3,6 @@ from os import getcwd, mkdir, path
 import nibabel as nb
 import numpy as np
 import pandas as pd
-from nilearn.datasets import fetch_icbm152_brain_gm_mask
 from nilearn.glm.first_level import FirstLevelModel, make_first_level_design_matrix
 from nilearn.glm.second_level import SecondLevelModel
 from nilearn.input_data import NiftiMasker, NiftiSpheresMasker
@@ -82,7 +81,6 @@ def subject_level(
     One run - normal first level
     More than one run - retrun fixed effect of the seed.
     """
-    icbm_mask = fetch_icbm152_brain_gm_mask()
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
@@ -104,9 +102,7 @@ def subject_level(
 
     contrast_id = "seed"
     print("Fit model")
-    model = FirstLevelModel(
-        t_r=t_r, mask_img=icbm_mask, subject_label=subject_label, verbose=verbose
-    )
+    model = FirstLevelModel(t_r=t_r, subject_label=subject_label, verbose=verbose)
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
     print("Computing contrasts and save to disc...")
@@ -146,7 +142,12 @@ def _check_group_design(design_matrix, contrast):
 
 
 def group_level(
-    first_level_models, group_confounds, group_design_matrix, group_contrast, verbose=0
+    first_level_models,
+    group_confounds,
+    group_design_matrix,
+    group_contrast,
+    mask_img,
+    verbose=0,
 ):
     if isinstance(group_confounds, str):
         group_confounds = pd.read_csv(group_confounds)
@@ -160,7 +161,7 @@ def group_level(
     _check_group_level(group_confounds, group_design_matrix, first_level_models)
     _check_group_design(group_design_matrix, group_contrast)
 
-    second_level_model = SecondLevelModel(verbose=verbose)
+    second_level_model = SecondLevelModel(mask_img=mask_img, verbose=verbose)
     second_level_model = second_level_model.fit(
         first_level_models, group_confounds, group_design_matrix
     )

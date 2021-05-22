@@ -7,8 +7,9 @@ def seed_base_connectivity(
     group_confounds,
     group_design_matrix,
     group_contrast,
+    mask_img=None,
     drift_model="cosine",
-    hrf_model="spm",
+    hrf_model=None,
     write_dir=None,
     verbose=0,
 ):
