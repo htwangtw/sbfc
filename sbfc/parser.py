@@ -69,6 +69,7 @@ def seed_base_connectivity(
         group_confounds,
         group_design_matrix,
         group_contrast,
+        mask_img=mask_img,
         verbose=verbose,
     )
     return subject_level_models, subject_lvl_contrast, second_level_model
