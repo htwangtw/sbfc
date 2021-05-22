@@ -98,6 +98,12 @@ def subject_level(
     if not isinstance(mask_img, str):
         mask_img = None
 
+    smoothing_fwhm = args.get("smoothing_fwhm", None)
+    if "smoothing_fwhm" in args:
+        args.pop("smoothing_fwhm")
+    if not isinstance(smoothing_fwhm, str):
+        smoothing_fwhm = None        
+        
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
@@ -121,6 +127,7 @@ def subject_level(
     print("Fit model")
     model = FirstLevelModel(
         t_r=t_r,
+        smoothing_fwhm=smoothing_fwhm,
         hrf_model=hrf_model,
         subject_label=subject_label,
         mask_img=mask_img,
