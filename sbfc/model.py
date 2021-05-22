@@ -86,12 +86,18 @@ def subject_level(
     One run - normal first level
     More than one run - retrun fixed effect of the seed.
     """
-    hrf_model = args.get("hrf_model", None)
-    if hrf_model:
+    hrf_model = args.get("hrf_model", False)
+    if "hrf_model" in args:
         args.pop("hrf_model")
-    mask_img = args.get("mask_img", None)
-    if hrf_model:
+    if not isinstance(hrf_model, str):
+        hrf_model = None
+
+    mask_img = args.get("mask_img", False)
+    if "mask_img" in args:
         args.pop("mask_img")
+    if not isinstance(mask_img, str):
+        mask_img = None
+
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
