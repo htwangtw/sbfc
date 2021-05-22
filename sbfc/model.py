@@ -46,7 +46,7 @@ def _get_frametime(t_r, n_scans):
 
 
 def _seed_mat(seed_masker, func, confounds=None):
-    if confounds:
+    if confounds is not None:
         confounds = pd.read_csv(confounds, sep="\t")
         confounds = confounds.drop(columns=["constant"])
     ts = seed_masker.fit_transform(func, confounds=confounds)
@@ -56,7 +56,7 @@ def _seed_mat(seed_masker, func, confounds=None):
     ts -= ts_m
     ts /= ts_sd
     ts = pd.DataFrame(ts, columns=["seed"])
-    if confounds:
+    if isinstance(confounds, pd.DataFrame):
         return pd.concat([ts, confounds], axis=1)
     else:
         return ts
