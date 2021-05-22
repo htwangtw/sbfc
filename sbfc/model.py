@@ -106,7 +106,7 @@ def subject_level(
     print("Fit model")
     model = FirstLevelModel(
         t_r=t_r,
-        hrf_model=args["hrf_model"],
+        hrf_model=args.get("hrf_model", "glover"),
         subject_label=subject_label,
         verbose=verbose,
     )
