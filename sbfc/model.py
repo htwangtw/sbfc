@@ -102,8 +102,8 @@ def subject_level(
     if "smoothing_fwhm" in args:
         args.pop("smoothing_fwhm")
     if not isinstance(smoothing_fwhm, str):
-        smoothing_fwhm = None        
-        
+        smoothing_fwhm = None
+
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
