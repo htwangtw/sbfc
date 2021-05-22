@@ -65,7 +65,11 @@ def _seed_mat(seed_masker, func, confounds=None):
 def _bulid_design(d, t_r, **args):
     frametimes = _get_frametime(t_r, d.shape[0])
     design_matrix = make_first_level_design_matrix(
-        frametimes, add_regs=d.values, add_reg_names=d.columns.tolist(), **args
+        frametimes,
+        add_regs=d.values,
+        add_reg_names=d.columns.tolist(),
+        hrf_model=args.get("hrf_model", None),
+        **args,
     )
     contrast = _first_level_seed_contrast(design_matrix.shape[1])
     return design_matrix, contrast
@@ -106,7 +110,7 @@ def subject_level(
     print("Fit model")
     model = FirstLevelModel(
         t_r=t_r,
-        hrf_model=args.get("hrf_model", "glover"),
+        hrf_model=args.get("hrf_model", None),
         subject_label=subject_label,
         verbose=verbose,
     )
