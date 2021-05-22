@@ -6,7 +6,7 @@ from nilearn import datasets
 
 from sbfc.parser import seed_base_connectivity
 
-mask = os.path.dirname(__file__) + "/data/difumo64_pcc.nii.gz"
+seed = os.path.dirname(__file__) + "/data/difumo64_pcc.nii.gz"
 
 
 def _make_data_single_run(confound=True):
@@ -88,7 +88,7 @@ def test_sbfc_single_run(tmpdir):
     # mask seed
     first_m, first_con, s_m = seed_base_connectivity(
         func_img,
-        mask,
+        seed,
         group_confounds,
         group_design_matrix,
         group_contrast,
@@ -107,7 +107,7 @@ def test_sbfc_mutli_run(tmpdir):
     # mask seed
     first_m, first_con, s_m = seed_base_connectivity(
         func_img,
-        mask,
+        seed,
         group_confounds,
         group_design_matrix,
         group_contrast,

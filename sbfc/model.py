@@ -68,7 +68,6 @@ def _bulid_design(d, t_r, **args):
         frametimes,
         add_regs=d.values,
         add_reg_names=d.columns.tolist(),
-        hrf_model=args.get("hrf_model", None),
         **args,
     )
     contrast = _first_level_seed_contrast(design_matrix.shape[1])
@@ -87,6 +86,8 @@ def subject_level(
     One run - normal first level
     More than one run - retrun fixed effect of the seed.
     """
+    hrf_model = args.get("hrf_model", None)
+    args.pop("hrf_model")
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
@@ -103,14 +104,14 @@ def subject_level(
     for func, conf in zip(funcs, confounds):
         sm = _seed_mat(seed_masker, func, conf)
         # all contrast should be the same
-        design_matrix, contrast = _bulid_design(sm, t_r, **args)
+        design_matrix, contrast = _bulid_design(sm, t_r, hrf_model=hrf_model, **args)
         design.append(design_matrix)
 
     contrast_id = "seed"
     print("Fit model")
     model = FirstLevelModel(
         t_r=t_r,
-        hrf_model=args.get("hrf_model", None),
+        hrf_model=hrf_model,
         subject_label=subject_label,
         verbose=verbose,
     )
