@@ -58,7 +58,7 @@ def _seed_mat(seed_masker, func, confounds=None):
     ts = pd.DataFrame(ts, columns=["seed"])
     if isinstance(confounds, pd.DataFrame):
         return pd.concat([ts, confounds], axis=1)
-    if isinstance(confounds, np.array):
+    if isinstance(confounds, np.ndarray):
         return pd.concat([ts, pd.DataFrame(confounds)], axis=1)
     else:
         return ts
