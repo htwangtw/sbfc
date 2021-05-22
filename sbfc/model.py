@@ -87,9 +87,11 @@ def subject_level(
     More than one run - retrun fixed effect of the seed.
     """
     hrf_model = args.get("hrf_model", None)
-    args.pop("hrf_model")
+    if hrf_model:
+        args.pop("hrf_model")
     mask_img = args.get("mask_img", None)
-    args.pop("mask_img")
+    if hrf_model:
+        args.pop("mask_img")
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
