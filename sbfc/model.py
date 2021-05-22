@@ -63,10 +63,7 @@ def _seed_mat(seed_masker, func, confounds=None):
 def _bulid_design(d, t_r, **args):
     frametimes = _get_frametime(t_r, d.shape[0])
     design_matrix = make_first_level_design_matrix(
-        frametimes,
-        add_regs=d.values,
-        add_reg_names=d.columns.tolist(),
-        **args
+        frametimes, add_regs=d.values, add_reg_names=d.columns.tolist(), **args
     )
     contrast = _first_level_seed_contrast(design_matrix.shape[1])
     return design_matrix, contrast
@@ -74,11 +71,11 @@ def _bulid_design(d, t_r, **args):
 
 def _first_level_seed_contrast(design_mat_col):
     seed_contrast = np.array([1] + [0] * (design_mat_col - 1))
-    return {"seed_based_glm": seed_contrast}
+    return {"seed": seed_contrast}
 
 
-def _subject_level(
-    seed, funcs, confounds=None, subject_label=None, write_dir=None, **args
+def subject_level(
+    seed, funcs, confounds=None, subject_label=None, write_dir=None, verbose=0, **args
 ):
     """Run a subject level seed base functional connectivity analysis.
     One run - normal first level
@@ -103,9 +100,9 @@ def _subject_level(
         design_matrix, contrast = _bulid_design(sm, t_r, **args)
         design.append(design_matrix)
 
-    contrast_id = "seed_based_glm"
+    contrast_id = "seed"
     print("Fit model")
-    model = FirstLevelModel(t_r=t_r, subject_label=subject_label)
+    model = FirstLevelModel(t_r=t_r, subject_label=subject_label, verbose=verbose)
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
     print("Computing contrasts and save to disc...")
@@ -113,6 +110,8 @@ def _subject_level(
     for map in statsmaps:
         image_path = path.join(write_dir, f"{contrast_id}_{map}.nii.gz")
         statsmaps[map].to_filename(image_path)
+
+        # subject_label, map_name and effects_map_path
     report = make_glm_report(
         model,
         contrasts=contrast,
@@ -143,7 +142,12 @@ def _check_group_design(design_matrix, contrast):
 
 
 def group_level(
-    first_level_models, group_confounds, group_design_matrix, group_contrast
+    first_level_models,
+    group_confounds,
+    group_design_matrix,
+    group_contrast,
+    mask_img,
+    verbose=0,
 ):
     if isinstance(group_confounds, str):
         group_confounds = pd.read_csv(group_confounds)
@@ -157,7 +161,7 @@ def group_level(
     _check_group_level(group_confounds, group_design_matrix, first_level_models)
     _check_group_design(group_design_matrix, group_contrast)
 
-    second_level_model = SecondLevelModel()
+    second_level_model = SecondLevelModel(mask_img=mask_img, verbose=verbose)
     second_level_model = second_level_model.fit(
         first_level_models, group_confounds, group_design_matrix
     )

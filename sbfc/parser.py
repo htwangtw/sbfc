@@ -7,8 +7,11 @@ def seed_base_connectivity(
     group_confounds,
     group_design_matrix,
     group_contrast,
+    mask_img=None,
     drift_model="cosine",
+    hrf_model=None,
     write_dir=None,
+    verbose=0,
 ):
     """Perform seed-based functional connectivity analysis on resting state data.
 
@@ -49,13 +52,15 @@ def seed_base_connectivity(
     """
     subject_level_models = []
     for sub_id, items in data.items():
-        subject_lvl, subject_lvl_contrast = sm._subject_level(
+        subject_lvl, subject_lvl_contrast = sm.subject_level(
             seed,
             items["func"],
             confounds=items["confound"],
             subject_label=sub_id,
             write_dir=write_dir,
+            verbose=verbose,
             drift_model=drift_model,
+            hrf_model=hrf_model,
         )
         subject_level_models.append(subject_lvl)
 
@@ -64,5 +69,7 @@ def seed_base_connectivity(
         group_confounds,
         group_design_matrix,
         group_contrast,
+        mask_img=mask_img,
+        verbose=verbose,
     )
     return subject_level_models, subject_lvl_contrast, second_level_model
