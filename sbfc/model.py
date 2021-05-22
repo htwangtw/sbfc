@@ -98,7 +98,7 @@ def subject_level(
     if not isinstance(mask_img, str):
         mask_img = None
 
-    smoothing_fwhm = args.get("smoothing_fwhm", None)
+    smoothing_fwhm = args.get("smoothing_fwhm", False)
     if "smoothing_fwhm" in args:
         args.pop("smoothing_fwhm")
     if not isinstance(smoothing_fwhm, str):
