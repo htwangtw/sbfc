@@ -123,7 +123,7 @@ def subject_level(
     print("Fit model")
     model = FirstLevelModel(
         t_r=t_r,
-        smoothing_fwhm=5.0,
+        standardize=True,
         hrf_model=hrf_model,
         subject_label=subject_label,
         mask_img=mask_img,
