@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sbfc"
-version = "0.4.2"
+version = "0.4.4"
 description = "Seed-based functional connectivity with Nilearn"
 authors = ["Hao-Ting Wang <htwangtw@gmail.com>"]
 license = "BSD-3-Clause"

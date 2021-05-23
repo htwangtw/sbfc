@@ -88,17 +88,8 @@ def subject_level(
     One run - normal first level
     More than one run - retrun fixed effect of the seed.
     """
-    hrf_model = args.get("hrf_model", False)
-    if "hrf_model" in args:
-        args.pop("hrf_model")
-    if not isinstance(hrf_model, str):
-        hrf_model = None
-
-    mask_img = args.get("mask_img", False)
-    if "mask_img" in args:
-        args.pop("mask_img")
-    if not isinstance(mask_img, str):
-        mask_img = None
+    hrf_model = args.get("hrf_model", None)
+    drift_model = args.get("drift_model", None)
 
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
@@ -116,18 +107,15 @@ def subject_level(
     for func, conf in zip(funcs, confounds):
         sm = _seed_mat(seed_masker, func, conf)
         # all contrast should be the same
-        design_matrix, contrast = _bulid_design(sm, t_r, hrf_model=hrf_model, **args)
+        design_matrix, contrast = _bulid_design(
+            sm, t_r, hrf_model=hrf_model, drift_model=drift_model
+        )
         design.append(design_matrix)
 
     contrast_id = "seed"
     print("Fit model")
     model = FirstLevelModel(
-        t_r=t_r,
-        standardize=True,
-        hrf_model=hrf_model,
-        subject_label=subject_label,
-        mask_img=mask_img,
-        verbose=verbose,
+        t_r=t_r, subject_label=subject_label, verbose=verbose, **args
     )
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
