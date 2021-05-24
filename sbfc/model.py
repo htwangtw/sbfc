@@ -126,13 +126,13 @@ def subject_level(
         statsmaps[map].to_filename(image_path)
 
         # subject_label, map_name and effects_map_path
-    report = make_glm_report(
-        model,
-        contrasts=contrast,
-        plot_type="glass",
-    )
-    report_path = path.join(write_dir, "first_level_report.html")
-    report.save_as_html(report_path)
+#     report = make_glm_report(
+#         model,
+#         contrasts=contrast,
+#         plot_type="glass",
+#     )
+#     report_path = path.join(write_dir, "first_level_report.html")
+#     report.save_as_html(report_path)
     return model, contrast
 
 
