@@ -45,7 +45,7 @@ def _get_frametime(t_r, n_scans):
     return np.linspace(0, (n_scans - 1) * t_r, n_scans)
 
 
-def _seed_mat(seed_masker, func, confounds=None):
+def _seed_mat(seed_name, seed_masker, func, confounds=None):
     if isinstance(confounds, str):
         confounds = pd.read_csv(confounds, sep="\t")
         confounds = confounds.drop(columns=["constant"])
@@ -55,7 +55,7 @@ def _seed_mat(seed_masker, func, confounds=None):
     ts_sd = ts.std()
     ts -= ts_m
     ts /= ts_sd
-    ts = pd.DataFrame(ts, columns=["seed"])
+    ts = pd.DataFrame(ts, columns=[seed_name])
     if isinstance(confounds, pd.DataFrame):
         return pd.concat([ts, confounds], axis=1)
     if isinstance(confounds, np.ndarray):
@@ -90,7 +90,7 @@ def subject_level(
     """
     hrf_model = args.get("hrf_model", None)
     drift_model = args.get("drift_model", None)
-
+    seed_name = seed.split("/")[-1].split(".nii.gz")[0]
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
@@ -105,14 +105,13 @@ def subject_level(
     design = []
     print("Generate design")
     for func, conf in zip(funcs, confounds):
-        sm = _seed_mat(seed_masker, func, conf)
+        sm = _seed_mat(seed_name, seed_masker, func, conf)
         # all contrast should be the same
         design_matrix, contrast = _bulid_design(
             sm, t_r, hrf_model=hrf_model, drift_model=drift_model
         )
         design.append(design_matrix)
-
-    contrast_id = "seed"
+    
     print("Fit model")
     model = FirstLevelModel(
         t_r=t_r, subject_label=subject_label, verbose=verbose, **args
@@ -120,9 +119,9 @@ def subject_level(
     model = model.fit(run_imgs=funcs, design_matrices=design)
 
     print("Computing contrasts and save to disc...")
-    statsmaps = model.compute_contrast(contrast[contrast_id], output_type="all")
+    statsmaps = model.compute_contrast(contrast[seed_name], output_type="all")
     for map in statsmaps:
-        image_path = path.join(write_dir, f"{contrast_id}_{map}.nii.gz")
+        image_path = path.join(write_dir, f"{seed_name}_{map}.nii.gz")
         statsmaps[map].to_filename(image_path)
 
         # subject_label, map_name and effects_map_path
