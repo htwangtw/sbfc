@@ -1,3 +1,4 @@
+from logging import warning
 from os import getcwd, mkdir, path
 
 import nibabel as nb
@@ -6,7 +7,6 @@ import pandas as pd
 from nilearn.glm.first_level import FirstLevelModel, make_first_level_design_matrix
 from nilearn.glm.second_level import SecondLevelModel
 from nilearn.input_data import NiftiMasker, NiftiSpheresMasker
-from nilearn.reporting import make_glm_report
 
 
 def _seed_ts(seed, radius=10, **args):
@@ -72,13 +72,13 @@ def _bulid_design(d, t_r, **args):
         add_reg_names=d.columns.tolist(),
         **args,
     )
-    contrast = _first_level_seed_contrast(design_matrix.shape[1])
+    contrast = _first_level_seed_contrast(design_matrix.shape[1], d.columns[0])
     return design_matrix, contrast
 
 
-def _first_level_seed_contrast(design_mat_col):
+def _first_level_seed_contrast(design_mat_col, seed_name):
     seed_contrast = np.array([1] + [0] * (design_mat_col - 1))
-    return {"seed": seed_contrast}
+    return {seed_name: seed_contrast}
 
 
 def subject_level(
@@ -90,7 +90,13 @@ def subject_level(
     """
     hrf_model = args.get("hrf_model", None)
     drift_model = args.get("drift_model", None)
-    seed_name = seed.split("/")[-1].split(".nii.gz")[0]
+    if isinstance(seed, str):
+        seed_name = seed.split("/")[-1].split(".nii.gz")[0]
+    elif isinstance(seed, tuple):
+        seed_name = f"coord-{seed[0]}-{seed[1]}-{seed[2]}"
+    else:
+        warning.warn("unsupported input.")
+
     t_r = _scan_consistent(funcs)
     seed_masker = _seed_ts(seed=seed)
     if confounds is None:
@@ -111,7 +117,7 @@ def subject_level(
             sm, t_r, hrf_model=hrf_model, drift_model=drift_model
         )
         design.append(design_matrix)
-    
+
     print("Fit model")
     model = FirstLevelModel(
         t_r=t_r, subject_label=subject_label, verbose=verbose, **args
@@ -125,13 +131,13 @@ def subject_level(
         statsmaps[map].to_filename(image_path)
 
         # subject_label, map_name and effects_map_path
-#     report = make_glm_report(
-#         model,
-#         contrasts=contrast,
-#         plot_type="glass",
-#     )
-#     report_path = path.join(write_dir, "first_level_report.html")
-#     report.save_as_html(report_path)
+    #     report = make_glm_report(
+    #         model,
+    #         contrasts=contrast,
+    #         plot_type="glass",
+    #     )
+    #     report_path = path.join(write_dir, "first_level_report.html")
+    #     report.save_as_html(report_path)
     return model, contrast
 
 
