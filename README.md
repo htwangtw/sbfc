@@ -1,3 +1,7 @@
+> ## ⚠️ This project is not actively maintained anymore as the author doesn't do Seed-based resting state functional connectivity analysis on a regular basis anymore. ⚠️
+> Please feel free to take over, give it a better name, and take the idea to adapt in your own analysis.
+
+
 # SBFC
 
 Seed-based resting state functional connectivity with Nilearn.
@@ -22,7 +26,7 @@ Then you can install by running the following command in
 a command prompt:
 
 ```bash
-pip install sbfc
+pip install git+http://github.com/htwangtw/sbfc.git
 ```
 
 ## Prepare your data
